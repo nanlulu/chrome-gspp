@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>GSheet++ for Google Sheets — crosshair &amp; formula reference jump</title>
+<meta name="description" content="Chrome extension for Google Sheets: highlight the active row and column, and click any formula reference to jump to that cell, across tabs. No tracking.">
+<link rel="canonical" href="https://nanlulu.github.io/chrome-gspp/">
+
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nanlulu.github.io/chrome-gspp/">
+<meta property="og:title" content="GSheet++ for Google Sheets — crosshair &amp; formula reference jump">
+<meta property="og:description" content="Highlight the active row and column, and click any formula reference to jump to that cell, across tabs. No tracking.">
+<meta property="og:image" content="https://nanlulu.github.io/chrome-gspp/icon128.png">
+<meta name="twitter:card" content="summary">
+
+<!--
+  Structured data. Deliberately no aggregateRating: there are no ratings yet, and
+  inventing them is both dishonest and something Google actively penalises.
+-->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "GSheet++",
+  "applicationCategory": "BrowserApplication",
+  "applicationSubCategory": "Chrome Extension",
+  "operatingSystem": "Chrome",
+  "url": "https://nanlulu.github.io/chrome-gspp/",
+  "downloadUrl": "STORE_URL_PLACEHOLDER",
+  "softwareVersion": "0.1.0",
+  "license": "https://opensource.org/licenses/MIT",
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "description": "A Chrome extension for Google Sheets that highlights the entire row and column of the active cell, and turns cross-sheet references in the formula bar into links that navigate to the referenced cell. Collects no data and makes no network requests.",
+  "featureList": [
+    "Highlights the active row and column (crosshair / focus cell)",
+    "Click a formula reference to jump to that cell, including across tabs",
+    "Keyboard shortcut to retrace jumps",
+    "Configurable highlight colour and intensity",
+    "No analytics, no tracking, no network requests"
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Does Google Sheets have anything like Excel's Trace Precedents?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Not built in. Google Sheets has a partial keyboard trick — press F2 on the cell, put the cursor on a reference, press F2 again — which does jump to the reference including across tabs, but it is undiscoverable and clumsy on a formula with several references. GSheet++ turns every reference in the formula bar into a link you click."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I highlight the active row and column in Google Sheets?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Google Sheets has no built-in setting for it; it only tints the row and column headers. You can approximate it with a conditional formatting rule, but that writes rules into your spreadsheet and breaks when you sort or share it. GSheet++ draws the highlight as an overlay instead, so nothing in your file changes."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does GSheet++ modify my spreadsheet?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. The highlight is drawn on top of the page, and jumping to a reference only moves your cursor. No cell values, formats, conditional formatting rules or formulas are touched."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does it work across different tabs in the same spreadsheet?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. A reference such as ='Q3 Forecast'!E40 jumps to the right cell on the right tab. Follow a chain of them and the jump-back shortcut retraces your steps."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does it work on Excel Online or other spreadsheet apps?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. GSheet++ runs only on Google Sheets, at docs.google.com/spreadsheets."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does GSheet++ collect any data?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. It contains no analytics and no tracking code, and makes no network requests of any kind. It requests no host permission for any domain other than Google Sheets, so it could not send data anywhere even if it tried. Your settings are stored in Chrome's own settings sync."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Will it slow down a large spreadsheet?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. The highlight is two positioned elements that follow the active cell, so its cost does not grow with the size of the sheet."
+      }
+    }
+  ]
+}
+</script>
+
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1f2023; --muted: #5f6368; --line: #e3e5e8;
+    --accent: #1a73e8; --accent-soft: #e8f0fe; --code-bg: #f6f7f9;
+    --green: #16a05d;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #16171a; --fg: #e8eaed; --muted: #9aa0a6; --line: #2c2e33;
+      --accent: #8ab4f8; --accent-soft: #1c2b44; --code-bg: #1e2024;
+      --green: #35c07d;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 0 24px; }
+  header { padding: 72px 0 48px; }
+  .mark { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
+  .mark img { width: 48px; height: 48px; }
+  .mark strong { font-size: 24px; letter-spacing: -0.02em; }
+  .mark .plus { color: var(--green); }
+  h1 { font-size: 34px; line-height: 1.25; letter-spacing: -0.022em; margin: 0 0 16px; }
+  .lede { font-size: 18px; color: var(--muted); margin: 0 0 32px; }
+  .cta {
+    display: inline-block; padding: 11px 22px; border-radius: 7px;
+    background: var(--accent); color: #fff; font-weight: 600;
+    text-decoration: none;
+  }
+  .cta:hover { filter: brightness(1.08); }
+  .cta-note { margin: 14px 0 0; font-size: 14px; color: var(--muted); }
+  section { padding: 40px 0; border-top: 1px solid var(--line); }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.07em;
+       color: var(--muted); margin: 0 0 20px; font-weight: 600; }
+  h3 { font-size: 19px; letter-spacing: -0.01em; margin: 0 0 8px; }
+  p { margin: 0 0 16px; }
+  .feature + .feature { margin-top: 32px; }
+  code {
+    background: var(--code-bg); padding: 2px 6px; border-radius: 4px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.88em;
+  }
+  ul { margin: 0 0 16px; padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line);
+           vertical-align: top; }
+  th { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+  .faq { margin-bottom: 24px; }
+  .faq h3 { font-size: 16px; margin-bottom: 6px; }
+  .faq p { color: var(--muted); margin: 0; }
+  a { color: var(--accent); }
+  footer { padding: 40px 0 72px; border-top: 1px solid var(--line);
+           font-size: 14px; color: var(--muted); }
+  footer a { margin-right: 18px; }
+  .scroll { overflow-x: auto; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header>
+  <div class="mark">
+    <img src="icon128.png" alt="" width="48" height="48">
+    <strong>GSheet<span class="plus">++</span></strong>
+  </div>
+  <h1>See where you are in a spreadsheet, and where the number came from.</h1>
+  <p class="lede">
+    A Chrome extension for Google Sheets. It highlights the entire row and column of the
+    active cell, and turns the references in your formula bar into links you can click to
+    jump straight to that cell — across tabs.
+  </p>
+  <a class="cta" href="STORE_URL_PLACEHOLDER">Add to Chrome — free</a>
+  <p class="cta-note">Open source, MIT licensed. No account, no analytics, no network requests.</p>
+</header>
+
+<section>
+  <h2>What it does</h2>
+
+  <div class="feature">
+    <h3>Crosshair — see the row and column you are on</h3>
+    <p>
+      Google Sheets tints only the row and column <em>headers</em> for the active cell. On a wide
+      budget or forecast sheet those headers are off-screen, and it becomes genuinely hard to tell
+      which cells line up with the one you selected. Excel users know the effect as
+      <strong>focus cell</strong>.
+    </p>
+    <p>
+      GSheet++ highlights the whole row and column in a configurable tint that blends with the page,
+      so text, gridlines and your own cell fills stay readable underneath. Nothing is written to your
+      spreadsheet — no conditional formatting rules, no cell fills, no Apps Script.
+    </p>
+  </div>
+
+  <div class="feature">
+    <h3>Reference jump — follow a formula to its source</h3>
+    <p>
+      Forecast formulas are full of cross-sheet references like <code>='Q3 Forecast'!E40</code>.
+      Reading one tells you where a number came from; getting there means hunting through the tab
+      strip and scrolling.
+    </p>
+    <p>
+      Hold <kbd>Alt</kbd> (<kbd>⌥</kbd> on Mac) and every reference in the formula bar becomes a
+      link. Click it and you land on that cell, in the right tab. This is the everyday half of what
+      Excel calls <strong>Trace Precedents</strong>, which Google Sheets has no built-in equivalent
+      for.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2>Compared with what Sheets does natively</h2>
+  <div class="scroll">
+    <table>
+      <thead>
+        <tr><th>Task</th><th>Google Sheets on its own</th><th>With GSheet++</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>See the active row and column</td>
+          <td>Only the headers are tinted, and they are off-screen on a wide sheet</td>
+          <td>The full row and column are highlighted</td>
+        </tr>
+        <tr>
+          <td>Highlight without changing the file</td>
+          <td>Conditional formatting works, but writes rules into the spreadsheet and breaks on sort or share</td>
+          <td>Drawn as an overlay; the file is untouched</td>
+        </tr>
+        <tr>
+          <td>Jump to a formula's precedent</td>
+          <td>Press <code>F2</code>, move the cursor onto a reference, press <code>F2</code> again — undiscoverable, and clumsy with several references</td>
+          <td>Hold a modifier and click the reference</td>
+        </tr>
+        <tr>
+          <td>Retrace a chain of references</td>
+          <td>Browser Back, if the jump changed the URL</td>
+          <td>A jump-back shortcut that walks the full history</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Privacy</h2>
+  <p>
+    GSheet++ has no servers, makes no network requests, and contains no analytics or tracking code.
+    It runs only on Google Sheets and never sees any other site.
+  </p>
+  <p>
+    That is verifiable rather than a promise. The extension requests no host permission for any
+    domain other than <code>docs.google.com/spreadsheets</code>, so it could not send data anywhere
+    even if it wanted to. The only thing it stores is your own settings — colours, toggles and your
+    chosen shortcut — in Chrome's own settings sync.
+  </p>
+</section>
+
+<section>
+  <h2>Questions</h2>
+
+  <div class="faq">
+    <h3>Does Google Sheets have anything like Excel's Trace Precedents?</h3>
+    <p>
+      Not built in. Sheets has a partial keyboard trick — <code>F2</code> on the cell, cursor on a
+      reference, <code>F2</code> again — which does jump across tabs, but it is undiscoverable and
+      clumsy on a formula with several references. GSheet++ turns every reference into a link you
+      click.
+    </p>
+  </div>
+
+  <div class="faq">
+    <h3>How do I highlight the active row and column in Google Sheets?</h3>
+    <p>
+      There is no built-in setting; Sheets only tints the headers. A conditional formatting rule
+      approximates it but writes rules into your spreadsheet and breaks when you sort or share.
+      GSheet++ draws an overlay instead, so nothing in your file changes.
+    </p>
+  </div>
+
+  <div class="faq">
+    <h3>Does GSheet++ modify my spreadsheet?</h3>
+    <p>
+      No. The highlight is drawn on top of the page, and jumping to a reference only moves your
+      cursor. No cell values, formats, conditional formatting rules or formulas are touched.
+    </p>
+  </div>
+
+  <div class="faq">
+    <h3>Does it work across different tabs in the same spreadsheet?</h3>
+    <p>
+      Yes. A reference such as <code>='Q3 Forecast'!E40</code> jumps to the right cell on the right
+      tab, and the jump-back shortcut retraces a chain of them.
+    </p>
+  </div>
+
+  <div class="faq">
+    <h3>Does it work on Excel Online or other spreadsheet apps?</h3>
+    <p>No. GSheet++ runs only on Google Sheets, at <code>docs.google.com/spreadsheets</code>.</p>
+  </div>
+
+  <div class="faq">
+    <h3>Does GSheet++ collect any data?</h3>
+    <p>
+      No. No analytics, no tracking, and no network requests of any kind. See the
+      <a href="https://gist.github.com/nanlulu/f1ba986958e29ddda69007600d9a2ae6">privacy policy</a>.
+    </p>
+  </div>
+
+  <div class="faq">
+    <h3>Will it slow down a large spreadsheet?</h3>
+    <p>
+      No. The highlight is two positioned elements that follow the active cell, so its cost does not
+      grow with the size of the sheet.
+    </p>
+  </div>
+</section>
+
+<footer>
+  <a href="https://github.com/nanlulu/chrome-gspp">Source on GitHub</a>
+  <a href="https://gist.github.com/nanlulu/f1ba986958e29ddda69007600d9a2ae6">Privacy policy</a>
+  <a href="STORE_URL_PLACEHOLDER">Chrome Web Store</a>
+  <p style="margin-top:20px">MIT licensed. Not affiliated with Google. Google Sheets is a trademark of Google LLC.</p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,52 @@
+name: Deploy landing page
+
+# Publishes site/ to GitHub Pages. Requires the repository to be public on a
+# free account — Pages on a private repo needs a paid plan.
+#
+# One-time setup after merging: Settings -> Pages -> Source -> GitHub Actions.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let a run finish rather than cancelling it; a half-deployed site is worse
+# than a slightly stale one.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fail if the store URL is still a placeholder
+        run: |
+          if grep -rq 'STORE_URL_PLACEHOLDER' site/; then
+            echo "::error::site/ still contains STORE_URL_PLACEHOLDER."
+            echo "Replace it with the real Chrome Web Store listing URL before publishing —"
+            echo "a live page whose only call to action is a dead link is worse than no page."
+            grep -rn 'STORE_URL_PLACEHOLDER' site/
+            exit 1
+          fi
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

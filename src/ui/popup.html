@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="ui.css">
+  <style>body { width: 268px; }</style>
+</head>
+<body>
+  <header>
+    <div>
+      <div class="wordmark">GSheet<span class="plus">++</span></div>
+      <p>Google Sheets, enhanced</p>
+    </div>
+    <label class="switch" title="Enable GSheet++">
+      <input type="checkbox" id="enabled">
+      <span></span>
+    </label>
+  </header>
+
+  <section id="controls">
+    <h2>Crosshair</h2>
+    <div class="row">
+      <label for="rowEnabled">Highlight row</label>
+      <label class="switch"><input type="checkbox" id="rowEnabled"><span></span></label>
+    </div>
+    <div class="row">
+      <label for="colEnabled">Highlight column</label>
+      <label class="switch"><input type="checkbox" id="colEnabled"><span></span></label>
+    </div>
+    <div class="row">
+      <label for="color">Color</label>
+      <input type="color" id="color">
+    </div>
+    <div class="row">
+      <label for="opacity">Intensity</label>
+      <input type="range" id="opacity" min="5" max="60" step="1">
+      <span class="value" id="opacityValue"></span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Reference jump</h2>
+    <div class="row">
+      <label for="jumpEnabled">Formula bar links</label>
+      <label class="switch"><input type="checkbox" id="jumpEnabled"><span></span></label>
+    </div>
+    <p class="hint">
+      Hold <kbd id="modifierHint">Alt</kbd> and click a reference in the formula
+      bar to jump to it. Press <kbd id="backHint">⌘⇧[</kbd> to jump back.
+    </p>
+  </section>
+
+  <section>
+    <button class="linklike" id="openOptions">All settings…</button>
+  </section>
+
+  <script src="popup.js"></script>
+</body>
+</html>

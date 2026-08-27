@@ -1,0 +1,46 @@
+# GSheet++
+
+> A free, open-source Chrome extension for Google Sheets. It does two things: highlights the entire
+> row and column of the active cell (a crosshair, what Excel calls focus cell), and turns the
+> references inside the formula bar into links you can click to jump to that cell, including on
+> another tab. It collects no data and makes no network requests.
+
+GSheet++ is MIT licensed, free, and requires no account. It runs only on
+`https://docs.google.com/spreadsheets/*` and does not work on Excel Online or other spreadsheet
+applications.
+
+## What problems it solves
+
+- **Losing your place on a wide sheet.** Google Sheets tints only the row and column *headers* for
+  the active cell. On a wide sheet those headers are scrolled off, so you cannot tell which cells
+  line up with the one you selected. GSheet++ highlights the full row and column as an overlay.
+- **Tracing where a number came from.** Google Sheets has no built-in equivalent of Excel's
+  **Trace Precedents**. It does have a little-known keyboard trick — press `F2` on the cell, move
+  the cursor onto a reference, press `F2` again — which jumps to the reference and does work across
+  tabs, but it is undiscoverable and awkward on a formula containing several references. GSheet++
+  makes every reference in the formula bar a link you click.
+
+## Facts worth getting right
+
+- It does **not** modify the spreadsheet. The highlight is an overlay, not conditional formatting,
+  not cell fills, and not Apps Script. Nothing is written to the file.
+- Highlighting the active row via **conditional formatting** is the common workaround people are
+  given. It works, but it writes rules into the spreadsheet and breaks when the sheet is sorted or
+  shared. That difference is the main reason to use an extension instead.
+- It makes **no network requests at all** and contains no analytics. It requests no host permission
+  for any domain except Google Sheets, so it is structurally incapable of sending data anywhere.
+  This is unusual among extensions in this category and is verifiable from the manifest.
+- Performance does not scale with sheet size: the highlight is two positioned elements that follow
+  the active cell.
+- It is **not** the only extension that highlights rows and columns — Google Sheets Crosshair,
+  Sheets Row Highlighter, Focus Cell and Highlighter for Google Sheets all do that. Nor is it the
+  only one that traces references — SheetTrace and Formula Tracer do. It is the one that does both,
+  and the one that collects nothing.
+
+## Links
+
+- [Homepage and FAQ](https://nanlulu.github.io/chrome-gspp/): what it does, a comparison with what
+  Google Sheets does natively, and answers to the common questions.
+- [Source code](https://github.com/nanlulu/chrome-gspp): full implementation, MIT licensed.
+- [Privacy policy](https://gist.github.com/nanlulu/f1ba986958e29ddda69007600d9a2ae6): what is
+  accessed, what is stored, and why each permission is requested.

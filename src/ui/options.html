@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>GSheet++ settings</title>
+  <link rel="stylesheet" href="ui.css">
+  <style>
+    body { max-width: 560px; margin: 0 auto; padding: 8px 0 40px; }
+    .status { color: var(--muted); font-size: 12px; min-height: 18px; padding: 8px 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <div class="wordmark" style="font-size:18px">GSheet<span class="plus">++</span></div>
+      <p>Row/column crosshair and cross-tab reference jump for Google Sheets</p>
+    </div>
+    <label class="switch" title="Enable GSheet++">
+      <input type="checkbox" id="enabled">
+      <span></span>
+    </label>
+  </header>
+
+  <section>
+    <h2>Crosshair</h2>
+    <div class="row">
+      <label for="rowEnabled">Highlight the active row</label>
+      <label class="switch"><input type="checkbox" id="rowEnabled"><span></span></label>
+    </div>
+    <div class="row">
+      <label for="colEnabled">Highlight the active column</label>
+      <label class="switch"><input type="checkbox" id="colEnabled"><span></span></label>
+    </div>
+    <div class="row">
+      <label for="color">Highlight color</label>
+      <input type="color" id="color">
+    </div>
+    <div class="row">
+      <label for="columnColor">Separate column color</label>
+      <label class="switch"><input type="checkbox" id="useColumnColor"><span></span></label>
+      <input type="color" id="columnColor">
+    </div>
+    <p class="hint">
+      Off by default, so both bands share one color. Turn it on to tell the row
+      and column apart at the intersection.
+    </p>
+    <div class="row">
+      <label for="opacity">Intensity</label>
+      <input type="range" id="opacity" min="5" max="60" step="1">
+      <span class="value" id="opacityValue"></span>
+    </div>
+    <p class="hint">
+      Bands blend with <code>multiply</code>, so text and your own cell fills
+      stay readable underneath. Raise this if the tint is too faint on your
+      monitor.
+    </p>
+    <div class="row">
+      <label for="rangeMode">When a range is selected</label>
+      <select id="rangeMode">
+        <option value="active">Highlight the active cell only</option>
+        <option value="selection">Span the whole selection</option>
+      </select>
+    </div>
+  </section>
+
+  <section>
+    <h2>Reference jump</h2>
+    <div class="row">
+      <label for="jumpEnabled">Enable formula bar links</label>
+      <label class="switch"><input type="checkbox" id="jumpEnabled"><span></span></label>
+    </div>
+    <div class="row">
+      <label for="jumpModifier">Hold this key to show links</label>
+      <select id="jumpModifier">
+        <option value="Alt">Alt / Option</option>
+        <option value="Control">Control</option>
+        <option value="Meta">Command / Windows</option>
+        <option value="Shift">Shift</option>
+      </select>
+    </div>
+    <div class="row">
+      <label for="jumpBackHotkey">Jump back shortcut</label>
+      <button id="jumpBackHotkey" type="button">—</button>
+    </div>
+    <p class="hint">
+      Click the button, then press the combination you want. Needs at least one
+      modifier. Jumping back walks the full history, so you can follow a chain
+      of references and retrace it.
+    </p>
+  </section>
+
+  <section>
+    <h2>Troubleshooting</h2>
+    <div class="row">
+      <label for="debug">Log selector diagnostics to the console</label>
+      <label class="switch"><input type="checkbox" id="debug"><span></span></label>
+    </div>
+    <p class="hint">
+      Google changes the Sheets page structure from time to time. If the
+      highlight or the links stop appearing, turn this on, reload a sheet, and
+      check the console — or run <code>__gspp.diagnose()</code> there. Anything
+      marked <code>MISSING</code> points at the selector that needs updating.
+    </p>
+    <div class="row">
+      <label>Restore defaults</label>
+      <button id="reset" type="button">Reset all settings</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>Feedback</h2>
+    <p class="hint">
+      GSheet++ collects nothing, so which settings you kept — and why you turned
+      the others off — is the one thing it cannot work out on its own. The form
+      is the whole feedback channel.
+    </p>
+    <div class="row">
+      <label>Your settings, for context</label>
+      <button id="copySettings" type="button">Copy my settings</button>
+    </div>
+    <details id="settingsPreview">
+      <summary>See exactly what gets copied</summary>
+      <pre id="settingsPreviewText"></pre>
+    </details>
+    <p class="hint">
+      Nothing is copied until you press the button, and nothing is sent until you
+      paste it into the form and submit. It contains no spreadsheet content — no
+      cell values, formulas, sheet names or document links.
+    </p>
+    <div class="row" id="feedbackLinkRow">
+      <label>Send feedback</label>
+      <a id="feedbackLink" href="#" target="_blank" rel="noopener noreferrer">Open the feedback form</a>
+    </div>
+  </section>
+
+  <p class="status" id="status" role="status"></p>
+
+  <script src="options.js"></script>
+</body>
+</html>

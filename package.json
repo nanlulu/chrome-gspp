@@ -1,0 +1,22 @@
+{
+  "name": "gsheet-plus-plus",
+  "version": "0.1.0",
+  "description": "GSheet++ — row/column crosshair and cross-tab reference jump for Google Sheets",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "watch": "node scripts/build.js --watch",
+    "package": "node scripts/build.js && node scripts/package.js",
+    "set-version": "node scripts/set-version.js",
+    "icons": "node scripts/make-icons.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "screenshots": "node scripts/make-screenshots.js"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "jsdom": "^29.1.1",
+    "vitest": "^3.0.0"
+  }
+}

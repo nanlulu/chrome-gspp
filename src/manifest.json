@@ -1,0 +1,46 @@
+{
+  "manifest_version": 3,
+  "name": "GSheet++",
+  "version": "0.1.0",
+  "description": "Highlight the active row and column, and jump to cross-tab references, in Google Sheets.",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://docs.google.com/spreadsheets/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://docs.google.com/spreadsheets/d/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "overlay.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "GSheet++",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
