@@ -39,6 +39,7 @@ applications.
 
 ## Links
 
+- [Install on the Chrome Web Store](https://chromewebstore.google.com/detail/gsheet++/gkncoekmjeflifoiidnfjndfbdailhcg): the extension itself, free.
 - [Homepage and FAQ](https://nanlulu.github.io/chrome-gspp/): what it does, a comparison with what
   Google Sheets does natively, and answers to the common questions.
 - [Source code](https://github.com/nanlulu/chrome-gspp): full implementation, MIT licensed.
