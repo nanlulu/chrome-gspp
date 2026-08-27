@@ -2,6 +2,12 @@
 
 Copy-paste source for the developer console. Keep this in sync with what is actually submitted.
 
+> **Not everything here is editable in the console.** The item name and the summary are read out of
+> `src/manifest.json` (`name` and `description`) and can only be changed by uploading a new package.
+> The detailed description, category, screenshots and privacy answers are console fields. If you
+> edit the name or summary below, run `npm run set-version -- <next>` and `npm run package`, then
+> upload — otherwise the change never reaches the store.
+
 > ⚠️ **Check before submitting:** the detailed description and FAQ 4 both mention the jump-back
 > keyboard shortcut. That shortcut is **not yet confirmed working** (see README → Known issues).
 > Verify it first, or replace both mentions with "Your browser's Back button retraces your steps,"
@@ -12,7 +18,7 @@ Copy-paste source for the developer console. Keep this in sync with what is actu
 
 ## Item name
 
-*Limit 75 characters.*
+*Limit 75 characters. Set in `src/manifest.json` as `name` — **not** editable in the console.*
 
 ```
 GSheet++: Crosshair + Formula Reference Jump for Google Sheets
@@ -29,7 +35,7 @@ Crosshair" — and it is why they surface and we do not.
 
 ## Short description (summary)
 
-*Limit 132 characters.*
+*Limit 132 characters. Set in `src/manifest.json` as `description` — **not** editable in the console.*
 
 ```
 Highlight the active row and column, and click any formula reference to jump to that cell, across tabs. No tracking.

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "GSheet++",
-  "version": "0.1.0",
-  "description": "Highlight the active row and column, and jump to cross-tab references, in Google Sheets.",
+  "name": "GSheet++: Crosshair + Formula Reference Jump for Google Sheets",
+  "version": "0.2.0",
+  "description": "Highlight the active row and column, and click any formula reference to jump to that cell, across tabs. No tracking.",
   "permissions": [
     "storage"
   ],
